@@ -1,0 +1,63 @@
+##this example was writed by lui and show a little example easy and simple, about how to connect at OPC UA
+##read some variables and write a variable the server used in this example is KEPServer
+
+from opcua import Client, ua
+import time as tm
+from random import randint
+url = "opc.tcp://127.0.0.1:49320" 
+client = Client(url)
+client.connect()
+print("You had been connectet at: 127.0.0.1:49320")
+
+NodeAddress = ["ns=2;s=test.plcsim.inEncPuls","ns=2;s=test.plcsim.inEncRes","ns=2;s=test.plcsim.inFltEnc","ns=2;s=test.plcsim.outDregess","ns=2;s=test.plcsim.outFlt"]
+
+#by this case the idea is able read five variables 
+inEncPuls = client.get_node(NodeAddress[0])
+inEncRes = client.get_node(NodeAddress[1])
+inFltEnc = client.get_node(NodeAddress[2])
+outDregess = client.get_node(NodeAddress[3])
+outFlt = client.get_node(NodeAddress[4])
+
+#showing the variables
+print("geting data values...")
+tm.sleep(0.5)
+print(inEncPuls.get_value())
+tm.sleep(.5)
+print(inEncRes.get_value())
+tm.sleep(.5)
+print(inFltEnc.get_value())
+tm.sleep(.5)
+print(outDregess.get_value())
+tm.sleep(.5)
+print(outFlt.get_value())
+tm.sleep(2)
+
+
+while(True):
+        try:
+                #reading the variables
+                anyVal = randint(10, 600)
+                value = ua.DataValue(ua.Variant(anyVal, ua.VariantType.UInt32))
+                inEncPuls.set_value(value)
+                print("send: "+str(anyVal))
+                tm.sleep(3)
+        except:
+                print("connection lost, plase check the server")
+                try:
+                        #if something going wrong try to connect again!
+                        url = "opc.tcp://127.0.0.1:49320"
+                        client = Client(url)
+                        client.connect()
+                        print("You had been connectet at: 127.0.0.1:49320")
+
+                        NodeAddress = ["ns=2;s=test.plcsim.inEncPuls","ns=2;s=test.plcsim.inEncRes","ns=2;s=test.plcsim.inFltEnc","ns=2;s=test.plcsim.outDregess","ns=2;s=test.plcsim.outFlt"]
+
+                        inEncPuls = client.get_node(NodeAddress[0])
+                        inEncRes = client.get_node(NodeAddress[1])
+                        inFltEnc = client.get_node(NodeAddress[2])
+                        outDregess = client.get_node(NodeAddress[3])
+                        outFlt = client.get_node(NodeAddress[4])
+                        tm.sleep(5)
+
+                except:
+                        KeyboardInterrupt()
